@@ -1,0 +1,339 @@
+---
+title: "Budget Experiment: Evaluation"
+author: "Joachim Gassen"
+date: "2020-02-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	fig.align = "center"
+)
+
+library("tidyverse")
+library("kableExtra")
+library("lubridate")
+library("ggbeeswarm")
+library("corrplot")
+library("ggridges")
+
+transpose_table <- function(tbl) {
+  # tbl Needs to have a first column containing variable names
+  # for the transposed table (normally group levels)
+  ttbl <- as_tibble(t(tbl[, 2:ncol(tbl)])) %>%
+    mutate(` ` = names(tbl)[2:ncol(tbl)]) %>%
+    select(c(nrow(tbl) + 1, 1:nrow(tbl)))
+  
+  names(ttbl)[2:ncol(ttbl)] <- pull(tbl[, 1])
+  ttbl
+}
+```
+
+
+```{r LoadData}
+subjects <- read_csv("data/budget_exp_subjects.csv", col_types = cols())
+rounds <- read_csv("data/budget_exp_rounds.csv", col_types = cols())
+times <- read_csv("data/budget_exp_times.csv", col_types = cols())
+```
+
+
+### Participation
+
+```{r Particpation}
+participation <- subjects %>%
+  left_join(rounds, by = "id") %>%
+  filter(!is.na(round)) %>%
+  rename(Treatment = treatment) %>%
+  group_by(Treatment) %>%
+  summarise(
+    `Unique players` = length(unique(id)),
+    `Played rounds` = n(),
+    `Completed games` = sum(!is.na(compensation))/10
+  ) %>%
+  transpose_table()
+
+kable(participation) %>%
+  kable_classic(full_width = FALSE)
+```
+
+
+### Time Spent on Experiment
+
+```{r Timing}
+
+times_by_id <- times %>%
+  filter(page_name == "S1") %>%
+  mutate(round = 0) %>%
+  select(id, round, time_spent) %>%
+  bind_rows(
+    times %>%
+      filter(page_name %in% c("S2", "S3")) %>%
+      select(id, round, time_spent) %>%
+      group_by(id, round) %>%
+      summarise(time_spent = sum(time_spent))
+  ) %>%
+  bind_rows(
+    times %>%
+      group_by(id) %>%
+      filter(any(page_name == "S4")) %>%
+      summarise(time_spent = sum(time_spent)) %>%
+      mutate(round = 11) %>%
+      select(id, round, time_spent)
+  ) %>%
+  arrange(id, round)
+
+tab <- times_by_id %>%
+  group_by(round) %>%
+  summarise(
+    N = n(),
+    Mean = mean(time_spent),
+    `Standard deviation` = sd(time_spent),
+    Median = median(time_spent),
+    Min = min(time_spent),
+    Max = max(time_spent)
+  ) %>%
+  rename(Round = round) %>%
+  arrange(Round) %>%
+  mutate_at(c("Mean", "Standard deviation", "Median"), format, digits = 1) %>%
+  mutate(
+    Round = case_when(
+      Round == 0 ~ "Intro", 
+      Round == 11 ~ "Total",
+      TRUE ~ paste("Round", Round)
+    )
+  )
+
+kable(tab, align = "lrrrrrr") %>%
+  kable_classic(full_width = FALSE) %>% 
+  row_spec(11, extra_css = "border-bottom: solid; border-bottom-width: 0.08em;")
+```
+
+### Manipulation Checks
+
+```{r ManChecks}
+subjects_mc <- subjects %>%
+  mutate(
+    completed_exp = !is.na(cost_known),
+    passed_mc = (compensation == "only wealth" & cost_known == "only to me")
+  ) %>% 
+  left_join(
+    times_by_id %>%
+      filter(round == 11 | round == 0) %>%
+      mutate(name = ifelse(round == 0, "time_intro", "time_total")) %>%
+      select(id, name, time_spent) %>%
+      pivot_wider(id_cols = id, names_from = name, values_from = time_spent) 
+  )
+
+tab <- subjects_mc %>%
+  filter(completed_exp) %>%
+  group_by(treatment) %>%
+  rename(Treatment = treatment) %>%
+  summarise(
+    `Completed experiment` = n(),
+    `Passed manipulaton checks` = sprintf(
+      "%d (%.1f %%)", sum(passed_mc), 100*(sum(passed_mc)/n())
+    )
+  ) %>%
+  transpose_table()
+  
+kable(tab, align = "lrr") %>%
+  kable_classic(full_width = FALSE)
+
+ggplot(
+  data = subjects_mc %>%
+    select(id, passed_mc, time_intro, time_total) %>%
+    rename(
+      Intro = time_intro,
+      Total = time_total
+    ) %>%
+    pivot_longer(
+      all_of(c("Intro", "Total")), names_to = "time", values_to = "sec"
+    ), 
+  aes(x = time, y = sec, group = passed_mc, color = passed_mc)
+) +
+  geom_quasirandom(dodge.width = 0.8, width = 0.1, size = 2) +
+  theme_classic() + 
+  labs(
+    title = "Time spent in seconds",
+    x = "",
+    y = "",
+    color = "Passed manipulation check"
+  ) + theme(legend.position = "bottom") 
+
+```
+
+### Honesty versus Wealth
+
+```{r HvW}
+df <- rounds %>%
+  filter(cost != 6) %>%
+  mutate(
+    pot_slack = 6000 - cost*1000,
+    slack_secured = budget - cost*1000,
+    pct_slack_secured = slack_secured/pot_slack
+  ) %>%
+  select(id, round, pot_slack, slack_secured, pct_slack_secured) %>%
+  left_join(subjects %>% select(id, treatment))
+
+ggplot(df, aes(x = pot_slack, y = slack_secured, color = treatment)) +
+  geom_point() +
+  labs(
+    x = "Potential budget slack [Taler]",
+    y = "Budget slack secured [Taler]",
+    color = "Treatment"
+  ) +
+  theme_classic() +
+  coord_fixed(xlim = c(0, 2000), ylim = c(0, 2000)) + 
+  theme(legend.position = "bottom") 
+
+outcomes <- df %>%
+  group_by(id) %>%
+  summarise(
+    rounds = n(),
+    pot_slack = sum(pot_slack),
+    pct_budget_slack_secured = sum(slack_secured)/sum(pot_slack),
+    partialy_honest = pct_budget_slack_secured != 1 & 
+      pct_budget_slack_secured != 0,
+    always_honest = pct_budget_slack_secured == 0
+  ) %>%
+  left_join(subjects_mc %>% select(id, treatment, passed_mc, time_total))
+
+tab <- outcomes %>%
+  group_by(treatment) %>%
+  summarise(
+    Particpants = sprintf("%d", n()),
+    Rounds = sprintf("%d", sum(rounds)),
+    `Mean claimed budget slack (%)` = scales::percent(
+      mean(pct_budget_slack_secured)
+    ),
+    `Std. dev. claimed budget slack (%)` = scales::percent(
+      sd(pct_budget_slack_secured)
+    ),
+    `Partially honest (%)` = scales::percent(sum(partialy_honest)/n()), 
+    `Always honest (%)` = scales::percent(sum(always_honest)/n())
+  ) %>%
+  transpose_table()
+
+kable(tab, align = "lrr") %>%
+  kable_classic(full_width = FALSE)
+
+
+ggplot(outcomes, aes(
+  x = pct_budget_slack_secured, y = treatment,
+  fill = treatment, height = stat(density)
+)) +
+  geom_density_ridges(
+    stat = "binline", bins = 20, scale = 0.95
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(
+    title = "Share of secured budget slack by treatment",
+    x = "Share of secured budget slack",
+    y = ""
+  ) +
+  theme_ridges() +
+  theme(
+    legend.position = "bottome",
+    plot.title.position = "plot"
+  )
+
+ggplot(outcomes %>% filter(rounds == 10), aes(
+  x = 10000 + pct_budget_slack_secured*pot_slack, y = treatment,
+  fill = treatment, height = stat(density)
+)) +
+  geom_density_ridges(
+    stat = "binline", bins = 20, scale = 0.95
+  ) +
+  scale_x_continuous(
+    labels =  scales::comma_format(accuracy = 1), 
+    limits = c(10000, 30000) 
+  ) +
+  labs(
+    title = "Accumulated private wealth by treatment",
+    x = "Private wealth [Taler]",
+    y = ""
+  ) +
+  geom_vline(xintercept = 20000, color = "#E41A1C", lty = 2) +
+  theme_ridges() +
+  theme(
+    legend.position = "bottome",
+    plot.title.position = "plot"
+  )
+
+wealth <- outcomes %>%
+#  filter(rounds == 10) %>%
+  mutate(wealth = 10000 + pct_budget_slack_secured*pot_slack) %>%
+  select(id, treatment, wealth)
+
+tab <- wealth %>%
+  group_by(treatment) %>%
+  summarise(
+    `t-stat (mu = 20,000)` = sprintf(
+      "%.3f", t.test(wealth, mu= 20000)$statistic
+    ),
+    `Prob |t| > 0` = sprintf("%.3f", t.test(wealth, mu = 20000)$p.value)
+  ) %>%
+  bind_rows(
+    wealth %>%
+      summarise(
+        treatment = "Total",
+        `t-stat (mu = 20,000)` = sprintf(
+          "%.3f", t.test(wealth, mu = 20000)$statistic
+        ),
+        `Prob |t| > 0` = sprintf("%.3f", t.test(wealth, mu = 20000)$p.value)
+      )
+  ) %>%
+  transpose_table()
+
+kable(tab, align = "lrrr") %>%
+  kable_classic(full_width = FALSE)
+```
+
+
+### The anchoring effect of top-down budgeting
+
+```{r TopDown}
+rounds %>%
+  left_join(subjects %>% select(id, treatment)) %>%
+  filter(treatment == "Top-down") %>%
+  ggplot(aes (x = offer, y = budget, color = accepted)) +
+  geom_point() +
+  labs(
+    x = "Offered budget [Taler]",
+    y = "Final budget [Taler]",
+    color = "Accepted offer"
+  ) +
+  theme_classic() +
+  coord_fixed(xlim = c(4000, 6000), ylim = c(4000, 6000)) + 
+  theme(legend.position = "bottom")   
+
+df <- rounds %>%
+  left_join(subjects %>% select(id, treatment)) %>%
+  filter(treatment == "Top-down") 
+
+fs_cor <- cor.test(df$offer, df$budget, method = "spearman")
+n6_cor <- cor.test(
+  df$offer[df$budget != 6000], df$budget[df$budget != 6000], method = "spearman"
+)
+
+tab <- tibble(
+  ` ` = c(
+    "% accepted",
+    "Spearman corr offered/final (full sample)",
+    "Spearman corr offered/final (max budgets excluded)"
+  ),
+  Statistic = c(
+    scales::percent(sum(df$accepted, na.rm = TRUE)/nrow(df)),
+    sprintf("%.3f (|Prob| > 0: %.3f)", fs_cor$statistic, fs_cor$p.value),
+    sprintf("%.3f (|Prob| > 0: %.3f)", n6_cor$statistic, n6_cor$p.value)
+  )
+)
+
+kable(tab) %>%
+  kable_classic(full_width = FALSE)
+```
+

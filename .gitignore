@@ -37,3 +37,11 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+#JG Stuff
+
+*.Rproj
+otree_raw_data
+*.DS_Store
+*.html
+*_files
