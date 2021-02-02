@@ -146,6 +146,7 @@ kable(tab, align = "lrr") %>%
 ggplot(
   data = subjects_mc %>%
     select(id, passed_mc, time_intro, time_total) %>%
+    filter(time_total <= 3600) %>%
     rename(
       Intro = time_intro,
       Total = time_total
@@ -158,7 +159,10 @@ ggplot(
   geom_quasirandom(dodge.width = 0.8, width = 0.1, size = 2) +
   theme_classic() + 
   labs(
-    title = "Time spent in seconds",
+    title = sprintf(
+      "Time spent in seconds (%d obs with total > 1h excluded)",
+      nrow(subjects_mc %>% filter(time_total > 3600))
+    ),
     x = "",
     y = "",
     color = "Passed manipulation check"
@@ -180,7 +184,7 @@ df <- rounds %>%
   left_join(subjects %>% select(id, treatment))
 
 ggplot(df, aes(x = pot_slack, y = slack_secured, color = treatment)) +
-  geom_point() +
+  geom_jitter() +
   labs(
     x = "Potential budget slack [Taler]",
     y = "Budget slack secured [Taler]",
@@ -189,6 +193,27 @@ ggplot(df, aes(x = pot_slack, y = slack_secured, color = treatment)) +
   theme_classic() +
   coord_fixed(xlim = c(0, 2000), ylim = c(0, 2000)) + 
   theme(legend.position = "bottom") 
+
+df %>%
+  group_by(round, treatment) %>%
+  mutate(round = as.factor(round)) %>%
+  summarise(mean_pct_slack_secured = mean(pct_slack_secured)) %>%
+  ggplot(aes(
+    x = round, y = mean_pct_slack_secured, group = treatment, color = treatment
+  )) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
+  labs(
+    title = "Mean share of secured budget slack by treatment and round",
+    x = "Round",
+    y = ""
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "bottome",
+    plot.title.position = "plot"
+  )
 
 outcomes <- df %>%
   group_by(id) %>%
@@ -227,9 +252,9 @@ ggplot(outcomes, aes(
   fill = treatment, height = stat(density)
 )) +
   geom_density_ridges(
-    stat = "binline", bins = 20, scale = 0.95
+    stat = "binline", binwidth = 0.1, center = 0.05, scale = 0.95
   ) +
-  scale_x_continuous(labels = scales::percent) +
+  scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
   labs(
     title = "Share of secured budget slack by treatment",
     x = "Share of secured budget slack",
@@ -246,11 +271,11 @@ ggplot(outcomes %>% filter(rounds == 10), aes(
   fill = treatment, height = stat(density)
 )) +
   geom_density_ridges(
-    stat = "binline", bins = 20, scale = 0.95
+    stat = "binline", binwidth = 2000, center = 11000, scale = 0.95
   ) +
   scale_x_continuous(
     labels =  scales::comma_format(accuracy = 1), 
-    limits = c(10000, 30000) 
+    limits = c(10000, 30000)
   ) +
   labs(
     title = "Accumulated private wealth by treatment",
@@ -319,21 +344,99 @@ fs_cor <- cor.test(df$offer, df$budget, method = "spearman")
 n6_cor <- cor.test(
   df$offer[df$budget != 6000], df$budget[df$budget != 6000], method = "spearman"
 )
+fe_cor <- cor.test(
+  df$offer[df$offer >= df$cost*1000], 
+  df$budget[df$offer >= df$cost*1000], method = "spearman"
+)
+nf_cor <- cor.test(
+  df$offer[df$budget != 6000 & df$offer >= df$cost*1000], 
+  df$budget[df$budget != 6000  & df$offer >= df$cost*1000], method = "spearman"
+)
+
 
 tab <- tibble(
   ` ` = c(
     "% accepted",
     "Spearman corr offered/final (full sample)",
-    "Spearman corr offered/final (max budgets excluded)"
+    "Spearman corr offered/final (max budgets excluded)",
+    "Spearman corr offered/final (only feasible offers)",
+    "Spearman corr offered/final (max budgets excluded, only feasible offers)"
   ),
   Statistic = c(
     scales::percent(sum(df$accepted, na.rm = TRUE)/nrow(df)),
-    sprintf("%.3f (|Prob| > 0: %.3f)", fs_cor$statistic, fs_cor$p.value),
-    sprintf("%.3f (|Prob| > 0: %.3f)", n6_cor$statistic, n6_cor$p.value)
+    sprintf("%.3f (|Prob| > 0: %.3f)", fs_cor$estimate, fs_cor$p.value),
+    sprintf("%.3f (|Prob| > 0: %.3f)", n6_cor$estimate, n6_cor$p.value),
+    sprintf("%.3f (|Prob| > 0: %.3f)", fe_cor$estimate, fe_cor$p.value),
+    sprintf("%.3f (|Prob| > 0: %.3f)", nf_cor$estimate, nf_cor$p.value)
   )
 )
 
 kable(tab) %>%
   kable_classic(full_width = FALSE)
+
+df <- rounds %>%
+  left_join(subjects_mc, by = "id") %>%
+  filter(cost != 6) %>%
+  mutate(
+    pot_slack = 6000 - cost*1000,
+    secured_slack = budget - cost*1000,
+    secured_slack_pct = secured_slack/pot_slack,
+    correct_offer = ifelse(!is.na(offer), offer == cost*1000, FALSE),
+    low_offer = ifelse(!is.na(offer), offer < cost*1000, FALSE),
+    high_offer = ifelse(!is.na(offer), offer > cost*1000, FALSE)
+  )
+
+df %>%
+  filter(!is.na(offer)) %>%
+  mutate(diff = offer - 1000*cost) %>%
+  ggplot(aes(x = diff, y = secured_slack_pct)) + 
+  geom_jitter() +
+  labs(
+    title = "Secured budget slack under top-down treatment",
+    x = "Difference between offered and required budget [Taler]",
+    y = ""
+  ) +
+  scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
+  geom_hline(yintercept = mean(
+    mean(df$budget[df$treatment == "Bottom-up"] == 
+           1000*df$cost[df$treatment == "Bottom-up"])
+  ), color = "#E41A1C", lty = 2) +
+  theme_classic() +
+  theme(legend.position = "bottom")   
+
+
+
+df %>%
+  filter(!is.na(offer)) %>%
+  mutate(diff = offer - 1000*cost) %>%
+  group_by(diff) %>%
+  summarise(pct_honest = mean(budget == 1000 * cost)) %>%
+  ggplot(aes(x = diff, y = pct_honest)) + 
+  geom_point() + geom_line() +
+  labs(
+    title = "Share of honest reporting under top-down treatment",
+    x = "Difference between offered and required budget [Taler]",
+    y = ""
+  ) +
+  scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
+  geom_hline(yintercept = mean(
+    mean(df$budget[df$treatment == "Bottom-up"] == 
+           1000*df$cost[df$treatment == "Bottom-up"])
+  ), color = "#E41A1C", lty = 2) +
+  theme_classic() +
+  theme(legend.position = "bottom")   
+```
+
+### Some regressions
+
+```{r regressions, results = "asis"}
+
+  
+
+mod1 <- lm(secured_slack_pct ~ treatment, data = df)
+mod2 <- lm(secured_slack_pct ~ low_offer + correct_offer + high_offer, data = df)
+mod3 <- lm(secured_slack ~ treatment + as.factor(cost), data = df)
+mod4 <- lm(secured_slack ~ low_offer + correct_offer + high_offer + as.factor(cost), data = df)
+stargazer::stargazer(list(mod1, mod2, mod3, mod4), type = "html")
 ```
 

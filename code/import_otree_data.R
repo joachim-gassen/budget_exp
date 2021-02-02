@@ -10,7 +10,8 @@ library(stringr)
 library(lubridate)
 
 resp_raw <- read_csv(
-  "otree_raw_data/ctrl_lb11_exp_2021-01-30.csv", col_types = cols()
+  "otree_raw_data/ctrl_lb11_exp_2021-02-02.csv", col_types = cols(), 
+  guess_max = 1500 
 ) %>%
   filter(
     session.is_demo == 0, 
@@ -68,13 +69,17 @@ rounds <- resp_raw %>%
     cost = player.cost,
     budget = player.b_budget,
     wealth = player.wealth,
-    profit = player.profit
+    profit = player.profit,
+    asked_invalid_budget = player.asked_invalid_budget
   ) %>%
-  select(id, round, cost, offer, accepted, budget, wealth, profit) %>%
+  select(
+    id, round, cost, offer, accepted, asked_invalid_budget, budget, 
+    wealth, profit
+  ) %>%
   arrange(id, round)
 
 times <- read_csv(
-  "otree_raw_data/PageTimes-2021-01-30.csv", col_types = cols()
+  "otree_raw_data/PageTimes-2021-02-02.csv", col_types = cols()
 ) %>%
   rename(
     otree_id = participant_code,
@@ -94,7 +99,7 @@ times <- read_csv(
   filter(!is.na(id)) %>%
   select(-otree_id) %>%
   bind_rows(
-    answers %>% 
+    subjects %>% 
       mutate(
         page_name = "S0", 
         round = 1,
