@@ -1,0 +1,25 @@
+id,treatment,time_started,compensation,cost_known,budget_denial_never,budget_denial_high,budget_denial_increasing,budget_denial_decreasing,wealth_recall,profit_recall,feedback
+Rx8A,Bottom-up,2021-02-01T07:47:37Z,both,also to firm,TRUE,FALSE,FALSE,FALSE,10000,-500,NA
+ZI3K,Bottom-up,2021-02-01T10:07:11Z,both,only to me,TRUE,FALSE,FALSE,FALSE,12800,-3800,NA
+5FNa,Bottom-up,2021-02-01T11:03:24Z,only wealth,only to me,FALSE,FALSE,FALSE,FALSE,NA,NA,NA
+9GKI,Top-down,2021-02-01T11:29:33Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,19000,-9000,"I took the role of a completely egoistical manager and only considered the personal wealth without considering the consequences for the firm. Which is why I forgot to write down the firm profits and estimated them just now by cumulating the budget slack.  In retrospect, thinking about the firm income would have been smart because a failing firm couldn't pay me anything, but it's too late for that."
+8TMC,Top-down,2021-02-01T11:45:42Z,both,only to me,TRUE,FALSE,FALSE,FALSE,11000,1200,"Mir wurde ein Budgetangebot von 5000 Talern unterbreitet und die Produktionskosten lagen bei 4000 Talern. Wenn ich jedoch nur ein Budget von 4000 Talern fordern würde, was wäre dann mit den 1000 Talern Rest passiert? Die Verwendung würde hierbei einen Unterschied in meiner Entscheidung spielen, wenn es zum einen bedeuten würde, dass die Firma nur einen geringeren Kredit aufnehmen bräuchte oder die freien Mittel dem Budget der Abteilung X zugesprochen und dort von Person Y ""in die eigene Tasche"" gesteckt wird.    Wieso muss das freie Budget, über den Kosten des Einkaufs, in meine Tasche fließen und kann nicht innerhalb meiner Abteilung, in Teilen zur zukünftigen Risikominimierung oder Entwicklung neuer Produkte oder Prozessstrukturen verwendet werden, um so den Unternehmenswert auf lange Sicht zu maximieren?"
+s4UE,Bottom-up,2021-02-01T11:55:32Z,both,only to me,TRUE,FALSE,FALSE,FALSE,6500,-1500,NA
+PljN,Top-down,2021-02-01T13:00:53Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,18000,-10000,"Ich hab mir ehrlich gesagt die Zahlen nicht gemerkt, welche sich nach der letzten Runde ergeben haben."
+bDfX,Bottom-up,2021-02-01T13:13:55Z,both,only to me,TRUE,FALSE,FALSE,FALSE,14,-4000,NA
+xf1W,Bottom-up,2021-02-01T14:05:00Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,19.3,-10000,NA
+25DU,Bottom-up,2021-02-01T14:09:06Z,only profit,only to me,TRUE,FALSE,FALSE,FALSE,10000,400,NA
+DiOc,Bottom-up,2021-02-01T14:13:29Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,14000,-5000,"to statement one: i startet the first rounds wondering which compensation would help to increase both, the firm profit and my private wealth, but after like 3 rounds i realized that the highest compensation would always increase my privat wealth the most so i switched to only deciding on this fact."
+ycQa,Top-down,2021-02-01T14:47:04Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,12000,2000,NA
+22DD,Bottom-up,2021-02-01T14:50:38Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,17900,-9000,NA
+qCdw,Top-down,2021-02-01T17:20:40Z,both,only to me,TRUE,FALSE,FALSE,FALSE,13400,-2400,NA
+wL2u,Bottom-up,2021-02-01T17:23:56Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,15100,-4000,NA
+wLmJ,Top-down,2021-02-01T19:56:54Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,10800,-3000,how is this similar to reality?
+dMJ3,Bottom-up,2021-02-01T20:22:01Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,14000,-600,NA
+1zlb,Bottom-up,2021-02-01T20:28:09Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+HrtA,Bottom-up,2021-02-01T20:29:44Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+H7Ka,Top-down,2021-02-01T21:06:59Z,both,only to me,TRUE,FALSE,FALSE,FALSE,14.5,-6700,NA
+9vEl,Top-down,2021-02-01T22:08:47Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,16000,-10000,homo oeconomicus
+9jrC,Bottom-up,2021-02-02T08:41:37Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,NA,-6000,habe mir mein wealth nicht gemerkt :(
+eXrB,Bottom-up,2021-02-02T09:52:20Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,14000,-10000,principal agent problem
+ucQQ,Top-down,2021-02-02T13:41:39Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA

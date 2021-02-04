@@ -45,3 +45,4 @@ otree_raw_data
 *.DS_Store
 *.html
 *_files
+rsconnect
