@@ -125,8 +125,9 @@ ui <- fluidPage(
     "<a href=https://doi.org/10.2308/accr.2001.76.4.537>",
     "Evans, Hannan, Krishnan and Moser (TAR, 2001).</a>",
     "To spice it up a little we added a treatment where firm",
-    "headquarters offer a budget to the manager (the experimental",
-    "subject). They can then either agree with it or request a different budget."
+    "headquarters first offer a random budget to the manager (the experimental",
+    "subject). The manager can then either agree with it or request",
+    "a different budget."
     )),
   br(),
   h3("Participation"),
@@ -491,7 +492,7 @@ server <- function(input, output, session) {
       Statistic = c(
         scales::percent(sum(df$accepted, na.rm = TRUE)/nrow(df)),
         sprintf("%.3f", fs_cor$estimate),
-        sprintf("%.3f", n6_cor$p.value)
+        sprintf("%.3f", n6_cor$estimate)
       ),
       `p-value (two-sided)` = c(
         format.pval(binom_test$p.value, eps = .001, digits = 2),
