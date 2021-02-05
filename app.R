@@ -174,9 +174,9 @@ ui <- fluidPage(
       p("What was the share of the available budget slack that you",
         "claimed for yourself? Compare this to",
         "Evans et al. (2001, Figure 1, p. 549)"),
-      plotOutput("ave_cbs"),
+     plotOutput("ave_cbs"),
       p("A similar plot containing all data"),
-      plotOutput("all_cbs"),
+     plotOutput("all_cbs"),
       p("The next plot displays the average claimed budget slack over time",
         "and by treatment. You did not converge to an egoistic stratgey."),
       plotOutput("cbs_time"),
@@ -246,8 +246,11 @@ server <- function(input, output, session) {
   outcomes <- reactive({
     rounds() %>%
       group_by(id) %>%
+      mutate(rounds = max(round)) %>%
+      filter(cost != 6) %>%    
       summarise(
-        rounds = n(),
+        rounds = mean(rounds),
+        rounds_cb6 = n(),
         pot_slack = sum(pot_slack),
         pct_slack_claimed = sum(claimed_slack)/sum(pot_slack),
         partialy_honest = pct_slack_claimed != 1 & 
@@ -337,7 +340,7 @@ server <- function(input, output, session) {
       ) +
       theme_classic(base_size = 16) +
       geom_segment(x = 4, y = 2, xend = 6, yend = 0, color = "#E41A1C", lty = 2) + 
-      xlim(4.0, 6.0) + ylim(0.0, 2.0) +
+      coord_cartesian(clip = 'off', xlim = c(4.0, 6.0), ylim = c(0.0, 2.0)) + 
       theme(plot.title.position =  "plot", legend.position = "bottom")
   })
   
@@ -346,7 +349,7 @@ server <- function(input, output, session) {
       group_by(treatment) %>%
       summarise(
         Particpants = sprintf("%d", n()),
-        Rounds = sprintf("%d", sum(rounds)),
+        `Rounds (cost < 6.0 Taler)` = sprintf("%d", sum(rounds_cb6)),
         `Mean claimed budget slack (%)` = scales::percent(
           mean(pct_slack_claimed)
         ),
@@ -445,23 +448,27 @@ server <- function(input, output, session) {
   
   output$tment_match <- renderPlot({
     rounds() %>%
+      filter(cost != 6) %>%
       filter(treatment == "Top-down") %>%
       mutate(offer_feasible = offer >= cost*1000) %>%
-      ggplot(aes (x = offer, y = budget, color = offer_feasible)) +
-      geom_jitter(size = 3) +
+      ggplot(aes(
+        x = offer, y = budget, color = offer_feasible, size = claimed_slack
+      )) +
+      geom_jitter() +
       labs(
         x = "Offered budget [Taler]",
         y = "Final budget [Taler]",
-        color = "Offer is feasible"
+        color = "Offer is feasible",
+        size = "Claimed slack [Taler]"
       ) +
       theme_classic(base_size = 16) +
-      xlim(4000, 6000) + ylim(4000, 6000) + 
-      theme(legend.position = "bottom")     
+      coord_fixed(clip = 'off', xlim = c(4000, 6000), ylim = c(4000, 6000)) 
   })
   
 
   output$tment_tests <- function() {
     df <- rounds() %>%
+      filter(cost != 6) %>%
       filter(treatment == "Top-down") 
     
     fs_cor <- cor.test(df$offer, df$budget, method = "spearman", exact = FALSE)
@@ -470,6 +477,11 @@ server <- function(input, output, session) {
       method = "spearman", exact = FALSE
     )
 
+    binom_test <- binom.test(
+      sum(df$accepted, na.rm = TRUE), nrow(df), p = 0.0476, 
+      alternative = "two.sided"
+    )
+    
     tab <- tibble(
       ` ` = c(
         "% accepted",
@@ -478,12 +490,17 @@ server <- function(input, output, session) {
       ),
       Statistic = c(
         scales::percent(sum(df$accepted, na.rm = TRUE)/nrow(df)),
-        sprintf("%.3f (|Prob| > 0: %.3f)", fs_cor$estimate, fs_cor$p.value),
-        sprintf("%.3f (|Prob| > 0: %.3f)", n6_cor$estimate, n6_cor$p.value)
+        sprintf("%.3f", fs_cor$estimate),
+        sprintf("%.3f", n6_cor$p.value)
+      ),
+      `p-value (two-sided)` = c(
+        format.pval(binom_test$p.value, eps = .001, digits = 2),
+        format.pval(fs_cor$p.value, eps = .001, digits = 2),
+        format.pval(n6_cor$p.value, eps = .001, digits = 2)
       )
     )
     
-    kable(tab) %>%
+    kable(tab, align = "lrr") %>%
       kable_styling(full_width = FALSE)
   }
   
