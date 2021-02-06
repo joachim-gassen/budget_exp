@@ -10,10 +10,12 @@ library(stringr)
 library(lubridate)
 
 resp_raw <- read_csv(
-  "otree_raw_data/ctrl_lb11_exp_2021-02-02.csv", col_types = cols(), 
+  "otree_raw_data/ctrl_lb11_exp_2021-02-04.csv", col_types = cols(), 
   guess_max = 1500 
 ) %>%
   filter(
+    participant.code != "vp2l7wsl", # inconsistency in data: advanced without
+                                    # accepting or refusing offer
     session.is_demo == 0, 
     participant._current_app_name == "ctrl_lb11_exp",
     !is.na(player.treatment)
@@ -79,7 +81,7 @@ rounds <- resp_raw %>%
   arrange(id, round)
 
 times <- read_csv(
-  "otree_raw_data/PageTimes-2021-02-02.csv", col_types = cols()
+  "otree_raw_data/PageTimes-2021-02-04.csv", col_types = cols()
 ) %>%
   rename(
     otree_id = participant_code,
