@@ -1,0 +1,39 @@
+id,treatment,time_started,compensation,cost_known,budget_denial_never,budget_denial_high,budget_denial_increasing,budget_denial_decreasing,wealth_recall,profit_recall,feedback
+Rx8A,Bottom-up,2023-01-17T15:32:16Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,19100,0,NA
+ZI3K,Bottom-up,2023-01-17T15:33:46Z,both,also to firm,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+5FNa,Bottom-up,2023-01-17T15:47:41Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,12000,0,NA
+8TMC,Bottom-up,2023-01-17T16:15:06Z,both,also to firm,FALSE,TRUE,TRUE,FALSE,11,0,NA
+dkGr,Top-down,2023-01-17T16:17:44Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+s4UE,Bottom-up,2023-01-17T16:31:11Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,186000,0,"The accumulated firm profit was -10000, but the program does not allow me to write it down.."
+bDfX,Top-down,2023-01-17T17:38:40Z,only wealth,also to firm,FALSE,TRUE,FALSE,FALSE,12000,7000,NA
+MnCh,Top-down,2023-01-17T19:15:42Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,22000,0,NA
+xf1W,Bottom-up,2023-01-17T20:37:14Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+25DU,Bottom-up,2023-01-17T20:58:13Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+DiOc,Bottom-up,2023-01-17T23:16:59Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+ycQa,Top-down,2023-01-17T23:33:29Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+22DD,Bottom-up,2023-01-17T23:40:46Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+qCdw,Bottom-up,2023-01-18T08:15:40Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,21900,0,NA
+wL2u,Top-down,2023-01-18T08:26:21Z,both,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+wLmJ,Bottom-up,2023-01-18T08:27:53Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,21.2,0,NA
+dMJ3,Bottom-up,2023-01-18T10:24:34Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,12000,0,NA
+1zlb,Top-down,2023-01-18T11:11:28Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+HrtA,Top-down,2023-01-18T11:53:40Z,only wealth,only to me,FALSE,TRUE,FALSE,FALSE,11000,0,NA
+H7Ka,Bottom-up,2023-01-18T12:55:21Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+9vEl,Bottom-up,2023-01-18T13:02:21Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+9jrC,Bottom-up,2023-01-18T13:11:21Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,14600,6900,"Das Experiment wäre interessant, wenn es einen anonymen Gegner gibt, der auch ein Budget wählt und wer auch immer das niedrigere Budget (bis zur Untergrenze der Produktionskosten) wählt bekommt die vollen 1000 Einkommen + Überschuss. Wenn beide gleich viel wählen wird das Einkommen und Überschuss gleichmäßig aufgeteilt."
+ucQQ,Top-down,2023-01-18T13:17:40Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,18300,5900,"The maximum I could possibly accumulate is 30000 if  every round the cost is 4 and I say 6. That is highly unlikely, though.  If you take the average of cost of 5 and I say 6 every round, I can accumulate 20000. My 18300 is pretty close to 20000 but I barely chose a cost of 6, so I must have gotten pretty lucky."
+5RjF,Bottom-up,2023-01-18T13:19:07Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,16200,6900,"Maybe in an extended version of the experiment add the possibility of a random check, where the true cost can be found out by the company. If you exceeded that cost you get 1000 deducted as punishment by your employer."
+EziF,Top-down,2023-01-18T13:43:03Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+dz6t,Top-down,2023-01-18T13:47:08Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+VQ1v,Bottom-up,2023-01-18T17:53:12Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+j2eJ,Top-down,2023-01-18T22:27:30Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,11000,0,NA
+P14m,Top-down,2023-01-19T16:09:56Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+mAIr,Top-down,2023-01-19T16:18:11Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,10000,1200,NA
+jM6g,Top-down,2023-01-20T08:49:48Z,both,only to me,FALSE,TRUE,TRUE,FALSE,13,700,I do not remember the exact amount that I accumulated for my private wealth and firm profits but I tried to give close answers
+lWcV,Bottom-up,2023-01-20T09:42:17Z,both,only to me,FALSE,TRUE,FALSE,FALSE,11100,7000,NA
+T2GK,Bottom-up,2023-01-22T16:38:03Z,only wealth,only to me,TRUE,FALSE,FALSE,TRUE,12400,0,NA
+Ej3r,Bottom-up,2023-01-22T17:47:13Z,only wealth,only to me,FALSE,TRUE,TRUE,FALSE,22000,10000,"The accumulated firm profits after 10 rounds are minus 10.000, but since I have no idea how high the equity of the firm is because it was not further defined, I guess a very high value so my decisions didn't effect the equity significantly."
+0sMx,Top-down,2023-01-23T15:23:45Z,both,only to me,TRUE,FALSE,FALSE,FALSE,10300,0,"Firm profits were -2000, as I always chose budget = cost except one time. You cant write -2000 though as this message appears:  Number must be at least 0."
+3Qx1,Top-down,2023-01-23T16:37:24Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,17600,0,NA
+YEf8,Bottom-up,2023-01-23T17:05:22Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,10500,400,.
+Xfoj,Bottom-up,2023-01-23T17:35:35Z,NA,NA,NA,NA,NA,NA,NA,NA,NA

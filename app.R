@@ -12,6 +12,9 @@ library(zip)
 library(ggbeeswarm)
 library(ggridges)
 
+SHOW_WAIT_PAGE <- FALSE
+EXPYEAR <- 2023
+
 transpose_table <- function(tbl) {
   # tbl Needs to have a first column containing variable names
   # for the transposed table (normally group levels)
@@ -23,9 +26,15 @@ transpose_table <- function(tbl) {
   ttbl
 }
 
-subjects_static <- read_csv("data/budget_exp_subjects.csv", col_types = cols())
-rounds_static <- read_csv("data/budget_exp_rounds.csv", col_types = cols())
-times_static <- read_csv("data/budget_exp_times.csv", col_types = cols())
+subjects_static <- read_csv(
+  sprintf("data/budget_exp_subjects_%d.csv", EXPYEAR), col_types = cols()
+)
+rounds_static <- read_csv(
+  sprintf("data/budget_exp_rounds_%d.csv", EXPYEAR), col_types = cols()
+)
+times_static <- read_csv(
+  sprintf("data/budget_exp_times_%d.csv", EXPYEAR), col_types = cols()
+)
 
 participation <- subjects_static %>%
   left_join(rounds_static, by = "id") %>%
@@ -114,112 +123,134 @@ mc_table <- subjects_mc %>%
   ) %>%
   transpose_table()
 
-ui <- fluidPage(
-  titlePanel("A Budgeting Experiment: Findings"),
-  br(),
-  br(),
-  br(),
-  p(HTML("These are the findings of our classroom experiment.", 
-    "The design of the experiment is heavily inspired by",
-    "the baseline case of",
-    "<a href=https://doi.org/10.2308/accr.2001.76.4.537>",
-    "Evans, Hannan, Krishnan and Moser (TAR, 2001).</a>",
-    "To spice it up a little we added a treatment where firm",
-    "headquarters first offer a random budget to the manager (the experimental",
-    "subject). The manager can then either agree with it or request",
-    "a different budget."
+if (SHOW_WAIT_PAGE) {
+  ui <- fluidPage(
+    titlePanel("A Budgeting Experiment: Findings (not yet...)"),
+    br(),
+    br(),
+    br(),
+    p(HTML(
+      "You reached the URL where we will disclose the findings from our",
+      "classroom experiment on budgeting.",
+      "As we are still running the experiment, there is nothing to see yet."
     )),
-  br(),
-  h3("Participation"),
-  p("The Table below shows the number of participants by treatment",
-    "and the number of completed rounds."),
-  tableOutput("participants"),
-  hr(),
-  h3("Time spent by round"),
-  p("How long did it take you to process the intro screen and the",
-    "respective rounds?"),
-  tableOutput("times"),
-  hr(),
-  h3("Manipulation Check"),
-  p("How many of you answered all manipulation checks correctly",
-    "(Compensation depends only on personal wealth, unit costs were",
-    "only known to you and firm will always accept your budget"),
-  tableOutput("manipulation_check"),
-  p("Does this depend on the time that you spend on the experiment?"),
-  plotOutput("mc_times"),
-  hr(),
-  p("OK. Now we turn to the experimental results. By default, they are",
-    "presented for the full sample. Alternatively you can use the left side",
-    "bar to limit the sample to subjects that passed the manipulation checks", 
-    "and/or that took a reasonable amount of time to process the experimental",
-    "material."),
-  p("In addition, you can download all experimental data to prepare your own",
-    "anaylsis"
-  ),
-  hr(),
-  sidebarLayout(
-    sidebarPanel(
-      radioButtons("smp_sel", "Do you want to limit the sample?",
-                   c("All observations" = "none",
-                     "Only observations that pass manipulation checks" = "mc")),
-      br(),
-      sliderInput("exclude_below_time",
-                  "Only observations that spend more than ... seconds on the intro page",
-                  value = 0,
-                  min = 0,
-                  max = 120),
-      downloadButton("download", "Download data")
+    p(HTML(
+      "You can, however, participate in the experiment by",
+      "<a href=https://exp.trr266.de/room/budget_exp/>following this link.</a>"
+    )),
+    p(HTML(
+      "The results will be available next Tuesday (January 24).  Thank you!"
+    ))
+  )
+} else {
+  ui <- fluidPage(
+    titlePanel("A Budgeting Experiment: Findings"),
+    br(),
+    br(),
+    br(),
+    p(HTML("These are the findings of our classroom experiment.", 
+           "The design of the experiment is heavily inspired by",
+           "the baseline case of",
+           "<a href=https://doi.org/10.2308/accr.2001.76.4.537>",
+           "Evans, Hannan, Krishnan and Moser (TAR, 2001).</a>",
+           "To spice it up a little we added a treatment where firm",
+           "headquarters first offer a random budget to the manager (the experimental",
+           "subject). The manager can then either agree with it or request",
+           "a different budget."
+    )),
+    br(),
+    h3("Participation"),
+    p("The Table below shows the number of participants by treatment",
+      "and the number of completed rounds."),
+    tableOutput("participants"),
+    hr(),
+    h3("Time spent by round"),
+    p("How long did it take you to process the intro screen and the",
+      "respective rounds?"),
+    tableOutput("times"),
+    hr(),
+    h3("Manipulation Check"),
+    p("How many of you answered all manipulation checks correctly",
+      "(Compensation depends only on personal wealth, unit costs were",
+      "only known to you and firm will always accept your budget"),
+    tableOutput("manipulation_check"),
+    p("Does this depend on the time that you spend on the experiment?"),
+    plotOutput("mc_times"),
+    hr(),
+    p("OK. Now we turn to the experimental results. By default, they are",
+      "presented for the full sample. Alternatively you can use the left side",
+      "bar to limit the sample to subjects that passed the manipulation checks", 
+      "and/or that took a reasonable amount of time to process the experimental",
+      "material."),
+    p("In addition, you can download all experimental data to prepare your own",
+      "anaylsis"
     ),
-    mainPanel(
-      h3("Honesty versus Wealth"),
-      p("What was the share of the available budget slack that you",
-        "claimed for yourself? Compare this to",
-        "Evans et al. (2001, Figure 1, p. 549)"),
-     plotOutput("ave_cbs"),
-      p("A similar plot containing all data"),
-     plotOutput("all_cbs"),
-      p("The next plot displays the average claimed budget slack over time",
-        "and by treatment. You did not converge to an egoistic stratgey."),
-      plotOutput("cbs_time"),
-      br(),
-      tableOutput("cbs_table"),
-      p("Were you willing to sacrify significant money?"),
-      plotOutput("wealth_hist"),
-      p("Yes you were."),
-      tableOutput("wealth_tests"),
-      hr(),
-      h3("The Treatment Effect"),
-      p("While the 'Bottom-up' group simply had to file their requested",
-        "budget, the 'Top-down' group first received a random budget offer",
-        "from firm headquarters. Has this random number influenced your",
-        "decision making?"),
-      plotOutput("tment_match"),
-      p("Hard to tell. You notice, however, that when you exclude the",
-        "players that played egoistically that the reminders were anchored",
-        "by the offer and also accepted it much more often that one would",
-        "expect."),
-      tableOutput("tment_tests"),
-      p("This is it. Feel free to download your experimental data and",
-        "see for yourself!")
-    )
-  ),
-  hr(),
-  fluidRow(
-    column(
-      12, align="center",
-      HTML(
-        "Created with <a href=https://shiny.rstudio.com>R/shiny</a> by",
-        "Joachim Gassen,",
-        "<a href=https://www.wiwi.hu-berlin.de/de/professuren/bwl/rwuwp/staff/gassen>",
-        "Humboldt-Universität zu Berlin</a>",
-        "and <a href=https://www.accounting-for-transparency.de>",
-        "TRR 266 'Accounting for Transparency'</a>, 2021.<br>",
-        "See <a href='https://github.com/joachim-gassen/budget_exp'>",
-        "GitHub repository</a> for license, code and details."
+    hr(),
+    sidebarLayout(
+      sidebarPanel(
+        radioButtons("smp_sel", "Do you want to limit the sample?",
+                     c("All observations" = "none",
+                       "Only observations that pass manipulation checks" = "mc")),
+        br(),
+        sliderInput("exclude_below_time",
+                    "Only observations that spend more than ... seconds on the intro page",
+                    value = 0,
+                    min = 0,
+                    max = 120),
+        downloadButton("download", "Download data")
+      ),
+      mainPanel(
+        h3("Honesty versus Wealth"),
+        p("What was the share of the available budget slack that you",
+          "claimed for yourself? Compare this to",
+          "Evans et al. (2001, Figure 1, p. 549)"),
+        plotOutput("ave_cbs"),
+        p("A similar plot containing all data"),
+        plotOutput("all_cbs"),
+        p("The next plot displays the average claimed budget slack over time",
+          "and by treatment. You did not converge to an egoistic stratgey."),
+        plotOutput("cbs_time"),
+        br(),
+        tableOutput("cbs_table"),
+        p("Were you willing to sacrify significant money?"),
+        plotOutput("wealth_hist"),
+        p("Yes you were."),
+        tableOutput("wealth_tests"),
+        hr(),
+        h3("The Treatment Effect"),
+        p("While the 'Bottom-up' group simply had to file their requested",
+          "budget, the 'Top-down' group first received a random budget offer",
+          "from firm headquarters. Has this random number influenced your",
+          "decision making?"),
+        plotOutput("tment_match"),
+        p("Hard to tell. You notice, however, that when you exclude the",
+          "players that played egoistically that the reminders were anchored",
+          "by the offer and also accepted it much more often that one would",
+          "expect."),
+        tableOutput("tment_tests"),
+        p("This is it. Feel free to download your experimental data and",
+          "see for yourself!")
+      )
+    ),
+    hr(),
+    fluidRow(
+      column(
+        12, align="center",
+        HTML(
+          "Created with <a href=https://shiny.rstudio.com>R/shiny</a> by",
+          "Joachim Gassen,",
+          "<a href=https://www.wiwi.hu-berlin.de/de/professuren/bwl/rwuwp/staff/gassen>",
+          "Humboldt-Universität zu Berlin</a>",
+          "and <a href=https://www.accounting-for-transparency.de>",
+          "TRR 266 'Accounting for Transparency'</a>, 2023.<br>",
+          "See <a href='https://github.com/joachim-gassen/budget_exp'>",
+          "GitHub repository</a> for license, code and details."
+        )
       )
     )
-  )
-)    
+  )    
+  
+}
 
 server <- function(input, output, session) {
   rounds <- reactive({

@@ -4,12 +4,17 @@ library(tidyr)
 library(ggplot2)
 library(ggrepel)
 
-# I ran this code prior to excluding the data with experimental id "vp2l7wsl"
-# So, to reproduce it, you would need to comment out line 17 from 
-# 'import_otree_data.R'
+EXPYEAR <- 2023
 
-subjects <- read_csv("data/budget_exp_subjects.csv", col_types = cols())
-rounds <- read_csv("data/budget_exp_rounds.csv", col_types = cols())
+subjects <- read_csv(
+  sprintf("data/budget_exp_subjects_%d.csv", EXPYEAR), col_types = cols()
+)
+rounds <- read_csv(
+  sprintf("data/budget_exp_rounds_%d.csv", EXPYEAR), col_types = cols()
+)
+exp_ids <- read_csv(
+  sprintf("private_data/exp_ids_%d.csv", EXPYEAR), col_types = cols()
+)
 
 wealth <- subjects %>% 
   filter(!is.na(compensation)) %>%
@@ -37,19 +42,9 @@ df <- wealth %>%
 
 t.test(df$wealth[df$winner], df$wealth[!df$winner])
 
-private_keys <- read_csv(
-  "otree_raw_data/ctrl_lb11_exp_2021-02-04.csv", col_types = cols(), 
-  guess_max = 1500 
-) %>%
-  transmute(
-    id = substr(player.exp_id, 1, 4),
-    key = substr(player.exp_id, 6, 21)
-  ) %>%
-  distinct()
-
-winners <- tibble(id = winners) %>%
-  left_join(private_keys, by = "id") %>%
-  bind_cols(read_csv("otree_raw_data/amazon_keys.csv", col_type = cols()))
+winners <- tibble(public_id = winners) %>%
+  left_join(exp_ids, by = "public_id") %>%
+  bind_cols(read_csv("private_data/amazon_keys.csv", col_type = cols()))
 
 create_winner_plot <- function(winner) {
   df <- rounds %>%
@@ -71,32 +66,70 @@ create_winner_plot <- function(winner) {
     theme_classic() +
     labs(
       x = "Round",
-      title = "Vielen Dank für die Teilnahme und herzlichen Glückwunsch!",
+      title = "Thank you participating and congratulations!",
       y = "",
       caption = paste(
-        "Was Sie da sehen, sind Ihre Daten. Und nun zur Entlohnung:\n",
-        "Ihr Amazon Gutschein Einlösungscode ist:", 
-        paste0("'", winners$gutschein_code[winners$id == winner], "'.\n"),
-        "Sie können ihn hier einlösen: https://www.amazon.de/gc/redeem."
+        "Thiese are your experimental data. And now for your compensation:\n",
+        "Your Amazon voucher code is:", 
+        paste0("'", winners$voucher_code[winners$public_id == winner], "'.\n"),
+        "You can redeem it here: https://www.amazon.de/gc/redeem."
       )
     ) + 
     theme(legend.position = "none", plot.title.position = "plot")
 }
 
 create_voucher_files <- function(ids) {
-  my_wd<-getwd()
+  my_wd <- getwd()
   tmp_dir <- tempdir()
   setwd(tmp_dir)
   for (id in ids) {
-    pdf_file <- file.path(sprintf("gutschein_%s.pdf", id))
-    zip_file <- file.path(my_wd, sprintf("otree_raw_data/gutschein_%s.zip", id))
+    pdf_file <- file.path(sprintf("voucher_%s.pdf", id))
+    zip_file <- file.path(my_wd, sprintf("private_data/voucher_%s.zip", id))
     ggsave(pdf_file, create_winner_plot(id), width = 6, height = 6)
     zip(
       zip_file, files = pdf_file, 
-      flags = paste("--password", winners$key[winners$id == id])
+      flags = paste("--password", winners$private_id[winners$public_id == id])
     )
   }
   setwd(my_wd)
 }
 
-create_voucher_files(winners$id)
+create_voucher_files(winners$public_id)
+
+email_text <- "
+Classroom experiment: the winners have been selected
+
+Dear all:
+
+Those of you who participated in last week's classroom experiment: We have 
+drawn the lucky winners. If your public 4 digit experimental ID is included 
+in one of the URLs below, you can claim your 10 € Amazon voucher.
+
+The winning IDs/URLs are: 
+
+%s
+To claim your woucher click on the respective link. It will lead you to a 
+password zipped PDF containing the information on how to redeem your 
+voucher. The password is your case-sensitive private experimental ID.
+This is the 16 digit string following your public experimental ID. You did
+write this one down, right? Please claim your voucher soon as I might be
+reusing unclaimed vouchers in the next term.
+
+In any case, winner or not, you can still take a look at the experimental
+findings at: https://jgassen.shinyapps.io/budget_exp/
+
+Thanks for participating and enjoy your weekends everybody!
+
+Joachim Gassen
+"
+
+cat(sprintf(
+  email_text, 
+  paste(
+    sprintf(
+      "https://trr266.wiwi.hu-berlin.de/ctrl/budget_exp/voucher_%s.zip\n",
+      sort(winners$public_id)
+    ),
+    collapse = ""
+  )
+))

@@ -9,18 +9,18 @@ library(dplyr)
 library(stringr)
 library(lubridate)
 
-resp_raw <- read_csv(
-  "otree_raw_data/ctrl_lb11_exp_2021-02-04.csv", col_types = cols(), 
-  guess_max = 1500 
-) %>%
+EXPYEAR <- 2023
+FNAME_RESP <- "private_data/ctrl_lb11_exp_2023-01-24.csv"
+FNAME_PTIMES <- "private_data/PageTimes-2023-01-24.csv"
+
+resp_raw <- read_csv(FNAME_RESP, col_types = cols(), guess_max = 1500) %>%
   filter(
-    participant.code != "vp2l7wsl", # inconsistency in data: advanced without
-                                    # accepting or refusing offer
+    participant.code != "n6498xek", # Joachim's test run
     session.is_demo == 0, 
     participant._current_app_name == "ctrl_lb11_exp",
     !is.na(player.treatment)
   ) %>%
-  mutate(time_started = as_datetime(participant.time_started)) 
+  mutate(time_started = as_datetime(participant.time_started_utc)) 
 
 subjects <- resp_raw %>%
   mutate(id = str_sub(player.exp_id, 1,4)) %>%
@@ -80,12 +80,20 @@ rounds <- resp_raw %>%
   ) %>%
   arrange(id, round)
 
+exp_ids <- resp_raw %>%
+  transmute(
+    public_id = substr(player.exp_id, 1, 4),
+    private_id = substr(player.exp_id, 6, 21)
+  ) %>%
+  distinct()
+
 times <- read_csv(
-  "otree_raw_data/PageTimes-2021-02-04.csv", col_types = cols()
+  FNAME_PTIMES, col_types = cols()
 ) %>%
   rename(
     otree_id = participant_code,
-    round = round_number
+    round = round_number,
+    epoch_time = epoch_time_completed
   ) %>%
   select(
     otree_id, round, page_name, epoch_time
@@ -120,6 +128,7 @@ times <- read_csv(
   filter(!is.na(time_spent)) %>%
   select(id, round, page_name, time_spent, time_entered, time_done)
 
-write_csv(subjects, "data/budget_exp_subjects.csv")
-write_csv(rounds, "data/budget_exp_rounds.csv")
-write_csv(times, "data/budget_exp_times.csv")
+write_csv(subjects, sprintf("data/budget_exp_subjects_%d.csv", EXPYEAR))
+write_csv(rounds,  sprintf("data/budget_exp_rounds_%d.csv", EXPYEAR))
+write_csv(times, sprintf("data/budget_exp_times_%d.csv", EXPYEAR))
+write_csv(exp_ids, sprintf("private_data/exp_ids_%d.csv", EXPYEAR))

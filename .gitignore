@@ -41,7 +41,7 @@ vignettes/*.pdf
 #JG Stuff
 
 *.Rproj
-otree_raw_data
+private_data
 *.DS_Store
 *.html
 *_files
