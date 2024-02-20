@@ -9,9 +9,9 @@ library(dplyr)
 library(stringr)
 library(lubridate)
 
-EXPYEAR <- 2023
-FNAME_RESP <- "private_data/ctrl_lb11_exp_2023-01-24.csv"
-FNAME_PTIMES <- "private_data/PageTimes-2023-01-24.csv"
+EXPYEAR <- 2024
+FNAME_RESP <- "private_data/ctrl_lb11_exp_2024-01-23.csv"
+FNAME_PTIMES <- "private_data/PageTimes-2024-01-23.csv"
 
 resp_raw <- read_csv(FNAME_RESP, col_types = cols(), guess_max = 1500) %>%
   filter(
@@ -64,7 +64,7 @@ rounds <- resp_raw %>%
   mutate(
     id = str_sub(player.exp_id, 1,4),
     offer = ifelse(player.treatment == "Top-down", player.offer, NA),
-    accepted = player.is_accepted == 0
+    accepted = player.is_accepted == 1
   ) %>%
   rename(
     round = subsession.round_number,

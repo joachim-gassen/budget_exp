@@ -4,7 +4,7 @@ library(tidyr)
 library(ggplot2)
 library(ggrepel)
 
-EXPYEAR <- 2023
+EXPYEAR <- 2024
 
 subjects <- read_csv(
   sprintf("data/budget_exp_subjects_%d.csv", EXPYEAR), col_types = cols()
@@ -70,9 +70,9 @@ create_winner_plot <- function(winner) {
       y = "",
       caption = paste(
         "Thiese are your experimental data. And now for your compensation:\n",
-        "Your Amazon voucher code is:", 
-        paste0("'", winners$voucher_code[winners$public_id == winner], "'.\n"),
-        "You can redeem it here: https://www.amazon.de/gc/redeem."
+        "Your Amazon voucher url is:", 
+        winners$voucher_url[winners$public_id == winner], ".\n",
+        "Simply click or copy & paste into your browser to redeem."
       )
     ) + 
     theme(legend.position = "none", plot.title.position = "plot")

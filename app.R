@@ -1,5 +1,5 @@
 # --- Header -------------------------------------------------------------------
-# (C) Joachim Gassen 2021, gassen@wiwi.hu-berlin.de
+# (C) Joachim Gassen 2024, gassen@wiwi.hu-berlin.de
 # License: MIT. See LICENSE file for details.
 #
 # Shiny app communicating the results of the budgeting experiment
@@ -13,7 +13,8 @@ library(ggbeeswarm)
 library(ggridges)
 
 SHOW_WAIT_PAGE <- FALSE
-EXPYEAR <- 2023
+EXPYEARS <- 2024
+# EXPYEARS <- c(2021, 2023, 2024)
 
 transpose_table <- function(tbl) {
   # tbl Needs to have a first column containing variable names
@@ -26,18 +27,35 @@ transpose_table <- function(tbl) {
   ttbl
 }
 
-subjects_static <- read_csv(
-  sprintf("data/budget_exp_subjects_%d.csv", EXPYEAR), col_types = cols()
+subjects_static <- bind_rows(
+  lapply(EXPYEARS, function(x) bind_cols(
+    tibble(year = x), 
+    read_csv(
+      sprintf("data/budget_exp_subjects_%d.csv", x), col_types = cols()
+    )
+  ))
 )
-rounds_static <- read_csv(
-  sprintf("data/budget_exp_rounds_%d.csv", EXPYEAR), col_types = cols()
+
+rounds_static <- bind_rows(
+  lapply(EXPYEARS, function(x) bind_cols(
+    tibble(year = x), 
+    read_csv(
+      sprintf("data/budget_exp_rounds_%d.csv", x), col_types = cols()
+    )
+  ))
 )
-times_static <- read_csv(
-  sprintf("data/budget_exp_times_%d.csv", EXPYEAR), col_types = cols()
+
+times_static <- bind_rows(
+  lapply(EXPYEARS, function(x) bind_cols(
+    tibble(year = x), 
+    read_csv(
+      sprintf("data/budget_exp_times_%d.csv", x), col_types = cols()
+    )
+  ))
 )
 
 participation <- subjects_static %>%
-  left_join(rounds_static, by = "id") %>%
+  left_join(rounds_static, by = c("year", "id")) %>%
   filter(!is.na(round)) %>%
   rename(Treatment = treatment) %>%
   group_by(Treatment) %>%
@@ -52,23 +70,23 @@ participation <- subjects_static %>%
 times_by_id <- times_static %>%
   filter(page_name == "S1") %>%
   mutate(round = 0) %>%
-  select(id, round, time_spent) %>%
+  select(year, id, round, time_spent) %>%
   bind_rows(
     times_static %>%
       filter(page_name %in% c("S2", "S3")) %>%
-      select(id, round, time_spent) %>%
-      group_by(id, round) %>%
+      select(year, id, round, time_spent) %>%
+      group_by(year, id, round) %>%
       summarise(time_spent = sum(time_spent), .groups = "drop")
   ) %>%
   bind_rows(
     times_static %>%
-      group_by(id) %>%
+      group_by(year, id) %>%
       filter(any(page_name == "S4")) %>%
       summarise(time_spent = sum(time_spent), .groups = "drop") %>%
       mutate(round = 11) %>%
-      select(id, round, time_spent)
+      select(year, id, round, time_spent)
   ) %>%
-  arrange(id, round)
+  arrange(year, id, round)
 
 times_table <- times_by_id %>%
   group_by(round) %>%
@@ -83,7 +101,10 @@ times_table <- times_by_id %>%
   ) %>%
   rename(Round = round) %>%
   arrange(Round) %>%
-  mutate_at(c("Mean", "Standard deviation", "Median"), format, digits = 1) %>%
+  mutate_at(
+    c("Mean", "Standard deviation", "Median", "Min", "Max"), 
+    format, digits = 1, scientific = FALSE, big.mark = ","
+  ) %>%
   mutate(
     Round = case_when(
       Round == 0 ~ "Intro", 
@@ -105,9 +126,9 @@ subjects_mc <- subjects_static %>%
     times_by_id %>%
       filter(round == 11 | round == 0) %>%
       mutate(name = ifelse(round == 0, "time_intro", "time_total")) %>%
-      select(id, name, time_spent) %>%
-      pivot_wider(id_cols = id, names_from = name, values_from = time_spent),
-    by = "id"
+      select(year, id, name, time_spent) %>%
+      pivot_wider(id_cols = c(year,id), names_from = name, values_from = time_spent),
+    by =c("year", "id")
   )
 
 mc_table <- subjects_mc %>%
@@ -139,7 +160,7 @@ if (SHOW_WAIT_PAGE) {
       "<a href=https://exp.trr266.de/room/budget_exp/>following this link.</a>"
     )),
     p(HTML(
-      "The results will be available next Tuesday (January 24).  Thank you!"
+      "The results will be available next Tuesday (January 23).  Thank you!"
     ))
   )
 } else {
@@ -208,7 +229,7 @@ if (SHOW_WAIT_PAGE) {
         p("A similar plot containing all data"),
         plotOutput("all_cbs"),
         p("The next plot displays the average claimed budget slack over time",
-          "and by treatment. You did not converge to an egoistic stratgey."),
+          "and by treatment. You did not converge to an egoistic strategy."),
         plotOutput("cbs_time"),
         br(),
         tableOutput("cbs_table"),
@@ -223,10 +244,12 @@ if (SHOW_WAIT_PAGE) {
           "from firm headquarters. Has this random number influenced your",
           "decision making?"),
         plotOutput("tment_match"),
-        p("Hard to tell. You notice, however, that when you exclude the",
-          "players that played egoistically that the reminders were anchored",
-          "by the offer and also accepted it much more often that one would",
-          "expect."),
+        p("Looks like it. You can see the pattern along the diagonal,",
+          "indicating that you were inclined to accept the offer when",
+          "it was feasible. The high acceptance rate and the correlation",
+          "of the offer with the final budget also are in line with this.",
+          "And finally it seems as if you claimed a smaller bugdet slack",
+          "under the top-down treatment."),
         tableOutput("tment_tests"),
         p("This is it. Feel free to download your experimental data and",
           "see for yourself!")
@@ -242,7 +265,7 @@ if (SHOW_WAIT_PAGE) {
           "<a href=https://www.wiwi.hu-berlin.de/de/professuren/bwl/rwuwp/staff/gassen>",
           "Humboldt-Universität zu Berlin</a>",
           "and <a href=https://www.accounting-for-transparency.de>",
-          "TRR 266 'Accounting for Transparency'</a>, 2023.<br>",
+          "TRR 266 'Accounting for Transparency'</a>, 2024.<br>",
           "See <a href='https://github.com/joachim-gassen/budget_exp'>",
           "GitHub repository</a> for license, code and details."
         )
@@ -255,15 +278,18 @@ if (SHOW_WAIT_PAGE) {
 server <- function(input, output, session) {
   rounds <- reactive({
     if (input$smp_sel  == "mc") df <- rounds_static %>%
-      inner_join(subjects_mc %>% filter(passed_mc)  %>% select(id), by = "id")
+      inner_join(
+        subjects_mc %>% filter(passed_mc)  %>% select(year, id), 
+        by = c("year", "id")
+      )
     else df <- rounds_static
     if (input$exclude_below_time > 0)
       df <- df %>%
         anti_join(
           subjects_mc %>% 
             filter(time_intro < input$exclude_below_time)  %>% 
-            select(id),
-          by = "id"
+            select(year, id),
+          by = c("year", "id")
         )
     
     df %>%
@@ -272,12 +298,15 @@ server <- function(input, output, session) {
         claimed_slack = budget - cost*1000,
         pct_slack_claimed = claimed_slack/pot_slack
       ) %>%
-      left_join(subjects_static %>% select(id, treatment), by = "id")
+      left_join(
+        subjects_static %>% select(year, id, treatment), 
+        by = c("year", "id")
+      )
   })
   
   outcomes <- reactive({
     rounds() %>%
-      group_by(id) %>%
+      group_by(year, id) %>%
       mutate(rounds = max(round)) %>%
       filter(cost != 6) %>%    
       summarise(
@@ -291,7 +320,10 @@ server <- function(input, output, session) {
         .groups = "drop"
       ) %>%
       mutate(wealth = 10000 + pct_slack_claimed * pot_slack) %>% 
-    left_join(subjects_mc %>% select(id, treatment, passed_mc, time_total), by = "id")
+    left_join(
+      subjects_mc %>% select(year, id, treatment, passed_mc, time_total), 
+      by = c("year", "id")
+    )
   })  
   
 
@@ -514,21 +546,29 @@ server <- function(input, output, session) {
       alternative = "two.sided"
     )
     
+    budget_test <- t.test(
+      budget ~ treatment, 
+      data = rounds() %>% filter(cost != 6)
+    )
+    
     tab <- tibble(
       ` ` = c(
         "% accepted",
         "Spearman corr offered/final (full sample)",
-        "Spearman corr offered/final (max budgets excluded)"
+        "Spearman corr offered/final (max budgets excluded)",
+        "Difference in secured budget slack"
       ),
       Statistic = c(
         scales::percent(sum(df$accepted, na.rm = TRUE)/nrow(df)),
         sprintf("%.3f", fs_cor$estimate),
-        sprintf("%.3f", n6_cor$estimate)
+        sprintf("%.3f", n6_cor$estimate),
+        sprintf("%.3f", budget_test$statistic)
       ),
       `p-value (two-sided)` = c(
         format.pval(binom_test$p.value, eps = .001, digits = 2),
         format.pval(fs_cor$p.value, eps = .001, digits = 2),
-        format.pval(n6_cor$p.value, eps = .001, digits = 2)
+        format.pval(n6_cor$p.value, eps = .001, digits = 2),
+        format.pval(budget_test$p.value, eps = .001, digits = 2)
       )
     )
     

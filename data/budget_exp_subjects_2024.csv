@@ -1,0 +1,45 @@
+id,treatment,time_started,compensation,cost_known,budget_denial_never,budget_denial_high,budget_denial_increasing,budget_denial_decreasing,wealth_recall,profit_recall,feedback
+c8ny,Top-down,2024-01-16T08:02:14Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,10.5,-3.7,I was more tempted in every round to simply accept the suggested budget before I noticed I receive the left overs of the budget.
+k6hq,Top-down,2024-01-16T11:20:57Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+WXBe,Top-down,2024-01-16T11:42:40Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,17400,-10000,NA
+03k8,Bottom-up,2024-01-16T12:45:44Z,only wealth,only to me,FALSE,TRUE,FALSE,FALSE,NA,NA,NA
+0u20,Bottom-up,2024-01-16T13:09:40Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+YYoc,Top-down,2024-01-16T14:53:00Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,19.1,-10,NA
+UgYj,Top-down,2024-01-16T16:01:02Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+sfhe,Top-down,2024-01-16T16:05:56Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,20700,-10000,NA
+dvvp,Bottom-up,2024-01-16T16:09:55Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,21200,-10000,NA
+AmqY,Bottom-up,2024-01-16T16:11:57Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+UDY6,Bottom-up,2024-01-17T17:18:05Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+0q4d,Bottom-up,2024-01-17T23:51:57Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+IwIa,Bottom-up,2024-01-18T13:27:44Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,10700,500,NA
+BgJ2,Top-down,2024-01-18T16:40:54Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+mCZz,Top-down,2024-01-19T06:40:47Z,both,only to me,TRUE,FALSE,FALSE,FALSE,12.1,-3.4,NA
+5G0V,Bottom-up,2024-01-19T09:22:24Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+A61k,Bottom-up,2024-01-19T14:02:37Z,only wealth,also to firm,TRUE,FALSE,FALSE,FALSE,19000,-8000,NA
+qgtP,Top-down,2024-01-19T14:11:27Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,13400,-6100,NA
+ORkX,Bottom-up,2024-01-21T13:32:20Z,only wealth,only to me,FALSE,TRUE,FALSE,FALSE,10800,-1700,NA
+QQzQ,Bottom-up,2024-01-21T16:05:44Z,only wealth,also to firm,FALSE,TRUE,FALSE,FALSE,14.6,-6000,NA
+FqEC,Bottom-up,2024-01-22T00:14:21Z,both,only to me,TRUE,FALSE,FALSE,FALSE,10,-2000,NA
+O8xN,Top-down,2024-01-22T07:55:48Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,13000,-5000,NA
+CaNW,Bottom-up,2024-01-22T07:57:47Z,only profit,also to firm,FALSE,FALSE,FALSE,TRUE,NA,NA,NA
+j7Ij,Top-down,2024-01-22T07:59:21Z,only wealth,only to me,FALSE,FALSE,FALSE,TRUE,10000,5900,NA
+V5C4,Top-down,2024-01-22T08:29:00Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+e1ZZ,Bottom-up,2024-01-22T08:43:18Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+qNXt,Top-down,2024-01-22T09:37:06Z,both,only to me,TRUE,FALSE,FALSE,FALSE,NA,-1100,NA
+f2JF,Top-down,2024-01-22T10:17:29Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+vW49,Top-down,2024-01-22T10:49:18Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,13000,-7000,NA
+jz5J,Top-down,2024-01-22T10:51:07Z,both,only to me,TRUE,FALSE,FALSE,FALSE,12800,0,NA
+mtii,Top-down,2024-01-22T11:30:21Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,10,1000,NA
+PUTm,Top-down,2024-01-22T11:39:02Z,both,only to me,FALSE,FALSE,FALSE,TRUE,NA,NA,NA
+EjYW,Top-down,2024-01-22T13:00:47Z,both,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+6Y2B,Top-down,2024-01-22T15:40:51Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,11000,-5000,NA
+ol0w,Top-down,2024-01-22T16:14:41Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,13300,-3700,NA
+bR5D,Top-down,2024-01-22T18:03:36Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,17000,-10000,NA
+u6XB,Bottom-up,2024-01-22T20:01:06Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+emCE,Top-down,2024-01-22T20:01:48Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,17200,-9000,"At the beginning of the experiment, I was highly focused, carefully reading the rules, and I even wrote down the results of the first three rounds to develop a strategy that would have maximized my private wealth and the firm's profit. Later, I realized that the firm couldn't go bankrupt, so I started requesting 6000 Talers each time to maximize my budget. That's when I stopped writing down results, and by the end of the tenth round, I didn't even accurately remember my final outcome."
+HelR,Bottom-up,2024-01-22T20:18:12Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+gq0d,Bottom-up,2024-01-22T20:59:41Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+E3NI,Bottom-up,2024-01-22T21:15:29Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,19100,-10000,NA
+J7s2,Bottom-up,2024-01-22T21:24:25Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,0,0,"I dont remember my values, sorry if this casues inconvienence. Very interesting game, somewhat funny that once value for manufacturing went over or equal 5$ the company still persist to ""give"" me money and continue producing."
+y3pC,Bottom-up,2024-01-22T22:51:37Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,20400,-9900,NA
+6swO,Bottom-up,2024-01-22T23:06:16Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
