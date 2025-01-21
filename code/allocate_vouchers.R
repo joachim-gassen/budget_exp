@@ -4,7 +4,7 @@ library(tidyr)
 library(ggplot2)
 library(ggrepel)
 
-EXPYEAR <- 2024
+EXPYEAR <- 2025
 
 subjects <- read_csv(
   sprintf("data/budget_exp_subjects_%d.csv", EXPYEAR), col_types = cols()
@@ -15,6 +15,7 @@ rounds <- read_csv(
 exp_ids <- read_csv(
   sprintf("private_data/exp_ids_%d.csv", EXPYEAR), col_types = cols()
 )
+amazon_vouchers <- read_csv("private_data/amazon_keys.csv", col_type = cols())
 
 wealth <- subjects %>% 
   filter(!is.na(compensation)) %>%
@@ -30,7 +31,7 @@ tickets <- do.call(c, mapply(rep, wealth$id, wealth$wealth/100, USE.NAMES = F))
 set.seed(42)
 winners <- NULL
 remaining_tickets <- tickets
-for (draw in 1:10) {
+for (draw in 1:nrow(amazon_vouchers)) {
   winner <- sample(remaining_tickets, 1)
   remaining_tickets <- remaining_tickets[remaining_tickets != winner]
   winners <- c(winners, winner)
@@ -44,7 +45,7 @@ t.test(df$wealth[df$winner], df$wealth[!df$winner])
 
 winners <- tibble(public_id = winners) %>%
   left_join(exp_ids, by = "public_id") %>%
-  bind_cols(read_csv("private_data/amazon_keys.csv", col_type = cols()))
+  bind_cols(amazon_vouchers)
 
 create_winner_plot <- function(winner) {
   df <- rounds %>%
