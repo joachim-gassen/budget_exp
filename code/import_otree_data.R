@@ -9,9 +9,9 @@ library(dplyr)
 library(stringr)
 library(lubridate)
 
-EXPYEAR <- 2024
-FNAME_RESP <- "private_data/ctrl_lb11_exp_2024-01-23.csv"
-FNAME_PTIMES <- "private_data/PageTimes-2024-01-23.csv"
+EXPYEAR <- 2025
+FNAME_RESP <- "private_data/ctrl_lb11_exp_2025-01-21.csv"
+FNAME_PTIMES <- "private_data/PageTimes-2025-01-21.csv"
 
 resp_raw <- read_csv(FNAME_RESP, col_types = cols(), guess_max = 1500) %>%
   filter(

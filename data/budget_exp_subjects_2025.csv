@@ -1,0 +1,36 @@
+id,treatment,time_started,compensation,cost_known,budget_denial_never,budget_denial_high,budget_denial_increasing,budget_denial_decreasing,wealth_recall,profit_recall,feedback
+BXpW,Bottom-up,2025-01-14T10:54:50Z,both,only to me,FALSE,FALSE,TRUE,FALSE,15000,-2000,NA
+4zNG,Bottom-up,2025-01-14T11:15:40Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,14000,0,"I can't see my accumulated private wealth while filling out this form, so i cannot guarantee the correctness of the number stated. Otherwise a very curious little experiment."
+o4Iz,Top-down,2025-01-14T13:54:36Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+OyDT,Bottom-up,2025-01-14T14:04:56Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+HFgN,Bottom-up,2025-01-14T14:08:32Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+n97K,Bottom-up,2025-01-14T14:09:43Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+dE0v,Top-down,2025-01-14T14:13:53Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+rE97,Top-down,2025-01-14T14:20:22Z,both,only to me,FALSE,TRUE,TRUE,FALSE,NA,NA,NA
+f0Lv,Bottom-up,2025-01-14T15:26:59Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+dP7X,Bottom-up,2025-01-14T16:43:02Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+c1DA,Top-down,2025-01-14T16:45:28Z,both,only to me,FALSE,TRUE,FALSE,FALSE,10000,-1100,NA
+ipym,Bottom-up,2025-01-14T17:36:20Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,21600,-8000,NA
+ev91,Top-down,2025-01-14T19:05:28Z,both,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,"Some of the English phrasing in the survey was a bit unclear, which made certain questions challenging to interpret."
+ObXG,Bottom-up,2025-01-14T19:05:40Z,both,only to me,FALSE,FALSE,FALSE,FALSE,NA,NA,NA
+l005,Bottom-up,2025-01-14T19:11:25Z,both,only to me,TRUE,FALSE,FALSE,FALSE,10600,-500,NA
+mYOH,Bottom-up,2025-01-14T20:17:48Z,both,only to me,FALSE,TRUE,FALSE,FALSE,NA,NA,NA
+i3GQ,Top-down,2025-01-14T22:05:01Z,only wealth,only to me,FALSE,TRUE,TRUE,FALSE,6000,-3400,NA
+iiWK,Top-down,2025-01-15T05:15:55Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+lrCh,Bottom-up,2025-01-15T10:56:58Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,17600,7800,I would have loved to look at the instructions from the beginning during the experiment.
+XddK,Bottom-up,2025-01-17T08:20:43Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+N1x2,Top-down,2025-01-17T10:16:28Z,both,also to firm,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+5xps,Top-down,2025-01-17T12:34:46Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+5ce3,Top-down,2025-01-17T12:40:32Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+iUU4,Top-down,2025-01-17T13:38:39Z,both,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+ugLe,Top-down,2025-01-18T13:00:53Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,10.9,-1900,NA
+P6yE,Top-down,2025-01-18T20:57:12Z,both,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+eTC4,Bottom-up,2025-01-20T11:34:04Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+S6TZ,Bottom-up,2025-01-20T11:41:20Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,NA,NA,NA
+odMO,Top-down,2025-01-20T11:43:31Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+ftzM,Top-down,2025-01-20T11:54:31Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+iJ4Y,Bottom-up,2025-01-20T11:58:18Z,only wealth,only to me,TRUE,FALSE,FALSE,FALSE,19400,-10000,NA
+JLPv,Bottom-up,2025-01-20T13:09:07Z,NA,NA,NA,NA,NA,NA,NA,NA,NA
+donk,Top-down,2025-01-20T16:52:35Z,both,only to me,FALSE,TRUE,FALSE,TRUE,12700,-1000,NA
+57F5,Bottom-up,2025-01-20T20:54:32Z,only wealth,also to firm,FALSE,TRUE,FALSE,FALSE,10000,-4200,NA
+JjQY,Bottom-up,2025-01-21T02:08:32Z,NA,NA,NA,NA,NA,NA,NA,NA,NA

@@ -13,8 +13,8 @@ library(ggbeeswarm)
 library(ggridges)
 
 SHOW_WAIT_PAGE <- FALSE
-EXPYEARS <- 2024
-# EXPYEARS <- c(2021, 2023, 2024)
+EXPYEAR <- 2025
+EXPYEARS <- c(2021, 2023, 2024, 2025)
 
 transpose_table <- function(tbl) {
   # tbl Needs to have a first column containing variable names
@@ -54,20 +54,7 @@ times_static <- bind_rows(
   ))
 )
 
-participation <- subjects_static %>%
-  left_join(rounds_static, by = c("year", "id")) %>%
-  filter(!is.na(round)) %>%
-  rename(Treatment = treatment) %>%
-  group_by(Treatment) %>%
-  summarise(
-    `Unique players` = length(unique(id)),
-    `Played rounds` = n(),
-    `Completed games` = sum(!is.na(compensation))/10,
-    .groups = "drop"
-  ) %>%
-  transpose_table()
-
-times_by_id <- times_static %>%
+times_by_id_static <- times_static %>%
   filter(page_name == "S1") %>%
   mutate(round = 0) %>%
   select(year, id, round, time_spent) %>%
@@ -88,61 +75,6 @@ times_by_id <- times_static %>%
   ) %>%
   arrange(year, id, round)
 
-times_table <- times_by_id %>%
-  group_by(round) %>%
-  summarise(
-    N = n(),
-    Mean = mean(time_spent),
-    `Standard deviation` = sd(time_spent),
-    Median = median(time_spent),
-    Min = min(time_spent),
-    Max = max(time_spent),
-    .groups = "drop"
-  ) %>%
-  rename(Round = round) %>%
-  arrange(Round) %>%
-  mutate_at(
-    c("Mean", "Standard deviation", "Median", "Min", "Max"), 
-    format, digits = 1, scientific = FALSE, big.mark = ","
-  ) %>%
-  mutate(
-    Round = case_when(
-      Round == 0 ~ "Intro", 
-      Round == 11 ~ "Total",
-      TRUE ~ paste("Round", Round)
-    )
-  )
-
-subjects_mc <- subjects_static %>%
-  mutate(
-    completed_exp = !is.na(cost_known),
-    passed_mc = (
-      compensation == "only wealth" & cost_known == "only to me" &
-        budget_denial_never == TRUE & budget_denial_high == FALSE &
-        budget_denial_increasing == FALSE & budget_denial_decreasing == FALSE
-    )
-  ) %>% 
-  left_join(
-    times_by_id %>%
-      filter(round == 11 | round == 0) %>%
-      mutate(name = ifelse(round == 0, "time_intro", "time_total")) %>%
-      select(year, id, name, time_spent) %>%
-      pivot_wider(id_cols = c(year,id), names_from = name, values_from = time_spent),
-    by =c("year", "id")
-  )
-
-mc_table <- subjects_mc %>%
-  filter(completed_exp) %>%
-  group_by(treatment) %>%
-  rename(Treatment = treatment) %>%
-  summarise(
-    `Completed experiment` = n(),
-    `Passed manipulaton checks` = sprintf(
-      "%d (%.1f %%)", sum(passed_mc), 100*(sum(passed_mc)/n())
-    ),
-    .groups = "drop"
-  ) %>%
-  transpose_table()
 
 if (SHOW_WAIT_PAGE) {
   ui <- fluidPage(
@@ -160,7 +92,7 @@ if (SHOW_WAIT_PAGE) {
       "<a href=https://exp.trr266.de/room/budget_exp/>following this link.</a>"
     )),
     p(HTML(
-      "The results will be available next Tuesday (January 23).  Thank you!"
+      "The results will be available next Tuesday (January 21).  Thank you!"
     ))
   )
 } else {
@@ -212,6 +144,10 @@ if (SHOW_WAIT_PAGE) {
         radioButtons("smp_sel", "Do you want to limit the sample?",
                      c("All observations" = "none",
                        "Only observations that pass manipulation checks" = "mc")),
+        radioButtons("smp_all_years", 
+                     "Do you want to include observations from previous years?",
+                     c("Only observations from current year" = "no",
+                       "Include observations from all years" = "yes")),
         br(),
         sliderInput("exclude_below_time",
                     "Only observations that spend more than ... seconds on the intro page",
@@ -265,7 +201,7 @@ if (SHOW_WAIT_PAGE) {
           "<a href=https://www.wiwi.hu-berlin.de/de/professuren/bwl/rwuwp/staff/gassen>",
           "Humboldt-Universität zu Berlin</a>",
           "and <a href=https://www.accounting-for-transparency.de>",
-          "TRR 266 'Accounting for Transparency'</a>, 2024.<br>",
+          "TRR 266 'Accounting for Transparency'</a>, 2025.<br>",
           "See <a href='https://github.com/joachim-gassen/budget_exp'>",
           "GitHub repository</a> for license, code and details."
         )
@@ -279,18 +215,20 @@ server <- function(input, output, session) {
   rounds <- reactive({
     if (input$smp_sel  == "mc") df <- rounds_static %>%
       inner_join(
-        subjects_mc %>% filter(passed_mc)  %>% select(year, id), 
+        subjects_mc() %>% filter(passed_mc)  %>% select(year, id), 
         by = c("year", "id")
       )
     else df <- rounds_static
     if (input$exclude_below_time > 0)
       df <- df %>%
         anti_join(
-          subjects_mc %>% 
+          subjects_mc() %>% 
             filter(time_intro < input$exclude_below_time)  %>% 
             select(year, id),
           by = c("year", "id")
         )
+    if(input$smp_all_years == "no")
+      df <- df %>% filter(year == EXPYEAR)
     
     df %>%
       mutate(
@@ -301,6 +239,31 @@ server <- function(input, output, session) {
       left_join(
         subjects_static %>% select(year, id, treatment), 
         by = c("year", "id")
+      )
+  })
+
+  subjects_mc <- reactive({
+    df <- subjects_static
+    
+    if(input$smp_all_years == "no")
+      df <- df %>% filter(year == EXPYEAR) 
+    
+    df %>%
+      mutate(
+        completed_exp = !is.na(cost_known),
+        passed_mc = (
+          compensation == "only wealth" & cost_known == "only to me" &
+            budget_denial_never == TRUE & budget_denial_high == FALSE &
+            budget_denial_increasing == FALSE & budget_denial_decreasing == FALSE
+        )
+      ) %>% 
+      left_join(
+        times_by_id_static %>%
+          filter(round == 11 | round == 0) %>%
+          mutate(name = ifelse(round == 0, "time_intro", "time_total")) %>%
+          select(year, id, name, time_spent) %>%
+          pivot_wider(id_cols = c(year,id), names_from = name, values_from = time_spent),
+        by =c("year", "id")
       )
   })
   
@@ -321,31 +284,90 @@ server <- function(input, output, session) {
       ) %>%
       mutate(wealth = 10000 + pct_slack_claimed * pot_slack) %>% 
     left_join(
-      subjects_mc %>% select(year, id, treatment, passed_mc, time_total), 
+      subjects_mc() %>% select(year, id, treatment, passed_mc, time_total), 
       by = c("year", "id")
     )
   })  
-  
 
   output$participants <- function() {
-    kable(participation, format = "html") %>%
+    df <- subjects_static %>%
+      left_join(rounds_static, by = c("year", "id")) %>%
+      filter(!is.na(round)) %>%
+      rename(Treatment = treatment)
+
+    if(input$smp_all_years == "no")
+      df <- df %>% filter(year == EXPYEAR) 
+    
+    df <- df %>% group_by(Treatment) %>%
+      summarise(
+        `Unique players` = length(unique(id)),
+        `Played rounds` = n(),
+        `Completed games` = sum(!is.na(compensation))/10,
+        .groups = "drop"
+      ) %>%
+      transpose_table()
+    
+    kable(df, format = "html") %>%
        kable_styling(full_width = FALSE)
   }
   
   output$times <- function() {
-    kable(times_table, align = "lrrrrrr") %>%
+    df <- times_by_id_static
+
+    if(input$smp_all_years == "no")
+      df <- df %>% filter(year == EXPYEAR) 
+    
+    df <- df %>%
+      group_by(round) %>%
+      summarise(
+        N = n(),
+        Mean = mean(time_spent),
+        `Standard deviation` = sd(time_spent),
+        Median = median(time_spent),
+        Min = min(time_spent),
+        Max = max(time_spent),
+        .groups = "drop"
+      ) %>%
+      rename(Round = round) %>%
+      arrange(Round) %>%
+      mutate_at(
+        c("Mean", "Standard deviation", "Median", "Min", "Max"), 
+        format, digits = 1, scientific = FALSE, big.mark = ","
+      ) %>%
+      mutate(
+        Round = case_when(
+          Round == 0 ~ "Intro", 
+          Round == 11 ~ "Total",
+          TRUE ~ paste("Round", Round)
+        )
+      )
+    
+    kable(df, align = "lrrrrrr") %>%
       kable_styling(full_width = FALSE) %>% 
       row_spec(11, extra_css = "border-bottom: solid; border-bottom-width: 0.08em;")
   }
   
   output$manipulation_check <- function() {
+    mc_table <- subjects_mc() %>%
+      filter(completed_exp) %>%
+      group_by(treatment) %>%
+      rename(Treatment = treatment) %>%
+      summarise(
+        `Completed experiment` = n(),
+        `Passed manipulaton checks` = sprintf(
+          "%d (%.1f %%)", sum(passed_mc), 100*(sum(passed_mc)/n())
+        ),
+        .groups = "drop"
+      ) %>%
+      transpose_table()
+    
     kable(mc_table, align = "lrr") %>%
       kable_styling(full_width = FALSE)
   }
   
   output$mc_times <- renderPlot({
     ggplot(
-      data = subjects_mc %>%
+      data = subjects_mc() %>%
         select(id, passed_mc, time_intro, time_total) %>%
         filter(time_total <= 3600) %>%
         rename(
@@ -362,7 +384,7 @@ server <- function(input, output, session) {
       labs(
         title = sprintf(
           "Time spent in seconds (%d obs with total > 1h excluded)",
-          nrow(subjects_mc %>% filter(time_total > 3600))
+          nrow(subjects_mc() %>% filter(time_total > 3600))
         ),
         x = "",
         y = "",
